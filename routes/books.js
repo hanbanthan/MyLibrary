@@ -16,7 +16,29 @@ const upload = multer({
 
 // All Books route
 router.get('/', async (req, res) => {
-    res.send('All books');
+    let query = Book.find({});
+
+    if (req.query.title != null && req.query.title != '') {
+        query = query.regex('title', new RegExp(req.query.title, 'i'));
+    }
+
+    if (req.query.publishedBefore != null && req.query.publishedBefore != '') {
+        query = query.lte('publishDate', req.query.publishedBefore);
+    }
+
+    if (req.query.publishedAfter != null && req.query.publishedAfter != '') {
+        query = query.gte('publishDate', req.query.publishedAfter);
+    }
+
+    try {
+        const books = await query.exec();
+        res.render('books/index', {
+            books: books,
+            searchOptions: req.query
+        });
+    } catch {
+        res.redirect('/');
+    }
 })
 
 // New Book route
@@ -30,7 +52,7 @@ router.post('/', upload.single('cover'), async (req, res) => {
     const book = new Book({
         title: req.body.title,
         author: req.body.author,
-        publishDate: new Date(req.body.publishDate),
+        publishedDate: new Date(req.body.publishedDate),
         pageCount: req.body.pageCount,
         coverImageName: fileName,
         description: req.body.description
