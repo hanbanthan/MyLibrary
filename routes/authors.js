@@ -74,7 +74,7 @@ router.put('/:id', async (req, res) => {
         if (author == null) {
             res.redirect('/');
         } else {
-            res.render('author/edit', {
+            res.render('authors/edit', {
                 author: author,
                 errorMessage: 'Error updating Author'
             })
